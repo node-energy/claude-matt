@@ -1,0 +1,9 @@
+# Everything ignored by default
+*
+
+# Track these
+!.gitignore
+!README.md
+!CLAUDE.md
+!skills/
+!skills/**
