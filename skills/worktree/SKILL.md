@@ -1,7 +1,7 @@
 ---
 name: worktree
 description: Spawn a git worktree for a branch with full dev environment setup (backend + frontend deps)
-user_invocable: true
+user-invocable: true
 argument-hint: "<branch-name>"
 ---
 

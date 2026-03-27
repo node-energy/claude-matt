@@ -1,7 +1,7 @@
 ---
 name: tdd-fix
 description: Fix a bug using TDD — write a failing test first, then iterate on the fix until all tests pass
-user_invocable: true
+user-invocable: true
 argument-hint: bug description
 ---
 
