@@ -5,5 +5,7 @@
 !.gitignore
 !README.md
 !CLAUDE.md
+!scripts/
+!scripts/**
 !skills/
 !skills/**
