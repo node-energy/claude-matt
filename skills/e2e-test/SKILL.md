@@ -158,3 +158,17 @@ For debugging, run with a visible browser:
 ```bash
 just backend-tests-endtoend path/to/test_file.py --head
 ```
+
+### Debugging with traces
+Playwright automatically saves traces for failed tests in `playwright-traces/` (at project root). Open them with:
+```bash
+playwright show-trace playwright-traces/<test-name-kebab-case>/trace.zip
+```
+The trace viewer shows each action step-by-step with DOM snapshots, network requests, and console logs.
+
+For CI failures: download the `e2e_test_report` artifact from the GitHub Actions run — traces are inside under `playwright-traces/`.
+
+Additional recording options:
+- `--tracing on` — save traces for all tests (default: only on failure)
+- `--video on` — record video of test runs
+- `--screenshot on` — capture screenshots
