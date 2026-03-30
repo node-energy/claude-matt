@@ -121,7 +121,7 @@ Leave blank (empty line after the heading). The developer will fill this in pers
 - **Automated tests**: Mark `[x]` only if new or modified test files exist in the diff. Otherwise `[ ]`.
 - **Slow tests**: ALWAYS leave `[ ]`. Never check this automatically.
 - **UI behavior**: ALWAYS leave `[ ]`. Never check this automatically.
-- **Utility functions (ADR 5)**: Mark `[x]` if new utility functions were properly moved, documented, and tested, or if no new utility functions were introduced. Mark `[ ]` if new utils exist and you cannot verify proper handling.
+- **Utility functions (ADR 5)**: Mark `[x]` if new utility functions were properly moved, documented, and tested, but not if no new utility functions were introduced. Mark `[ ]` if new utils exist and you cannot verify proper handling.
 
 ## Step 6: Present draft for review
 
