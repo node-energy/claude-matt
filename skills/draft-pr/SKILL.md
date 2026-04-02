@@ -1,6 +1,6 @@
 ---
 name: draft-pr
-description: Create a draft pull request against develop with proper template
+description: Create a draft pull request against develop with proper template. MUST be used whenever the user asks to create a PR, open a PR, draft a PR, or make a pull request.
 argument-hint: "[TICKET-KEY | Jira URL | GitHub issue URL] [opti.node URL]"
 ---
 
