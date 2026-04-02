@@ -1,7 +1,7 @@
 ---
 name: draft-pr
 description: Create a draft pull request against develop with proper template. MUST be used whenever the user asks to create a PR, open a PR, draft a PR, or make a pull request.
-argument-hint: "[TICKET-KEY | Jira URL | GitHub issue URL] [opti.node URL]"
+argument-hint: "[TICKET-KEY | Jira URL | GitHub PR URL] [opti.node URL]"
 ---
 
 Create a draft pull request against the `develop` branch following the team's PR template and conventions.
@@ -12,7 +12,7 @@ Create a draft pull request against the `develop` branch following the team's PR
 - A ticket key like `D2-1234` or `WUP-5678`
 - A ticket key with description like `D2-1234: do something`
 - A Jira URL like `https://node-energy.atlassian.net/browse/D2-1234`
-- A GitHub issue URL like `https://github.com/node-energy/optinode_backend/issues/123`
+- A GitHub PR URL like `https://github.com/node-energy/optinode_backend/pull/123`
 - An opti.node URL for the "How to test it" section like `http://localhost:3000/some/path`
 
 Parse all of these from `$ARGUMENTS`. A Jira URL implies the ticket key (extract it from the URL path). Multiple items may be provided separated by spaces.
@@ -44,7 +44,7 @@ If there are no commits ahead of `develop`, warn the user and stop. If there are
 From `$ARGUMENTS`, extract:
 - **Ticket key**: e.g., `D2-1234`, `WUP-5678`, `CoCo-9171`. If not provided explicitly, try to extract from the branch name (branches follow pattern `TICKET-KEY-description`, e.g., `D2-1234-fix-something`).
 - **Jira URL**: if a `node-energy.atlassian.net` URL was provided, keep it. If only a ticket key is available, construct: `https://node-energy.atlassian.net/browse/TICKET-KEY`
-- **GitHub issue URL**: if a `github.com/.../issues/N` URL was provided, extract the issue number.
+- **GitHub PR URL**: if a `github.com/.../pull/N` URL was provided, extract the PR number.
 - **opti.node URL**: any `localhost:3000` URL provided.
 
 ## Step 3: Find relevant Storybook stories
@@ -99,7 +99,7 @@ Use this exact template structure. Replace all placeholder/italic instructional 
 
 ### Goal text logic (pick ONE, in priority order):
 1. If a Jira URL was provided or constructed: `closes [TICKET-KEY](jira_url)`
-2. If a GitHub issue URL was provided: `part of #NUMBER`
+2. If a GitHub PR URL was provided: `follow up to #NUMBER`
 3. Otherwise: analyze the changes and write an appropriate reason (e.g., "improves code quality", "fixes bug (describe bug)", "adds tests")
 
 ### Solution details:
@@ -110,7 +110,6 @@ Use this exact template structure. Replace all placeholder/italic instructional 
 ### How to test it:
 - If an opti.node URL was provided or is easily derivable: `- In opti.node: {url}`
 - If Storybook stories were found: `- [In Storybook]({storybook_url})` for each relevant story
-- If Python tests were added or changed in the diff: `- Run tests: pytest path/to/tests`
 - If NONE of the above apply, leave this section commented out (as it is in the original template).
 
 ### Feedback section:
