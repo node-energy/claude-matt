@@ -18,3 +18,7 @@ See `optinode/webserver/tests/manager/person_edit/` for a complete example of:
 - Editing pre-filled fields (clear + fill pattern)
 - Scoping selectors to the active tab panel
 - Verifying data persistence by reopening the modal after save
+
+## Assertion best practices
+
+- When asserting that an element is **not** in the DOM, prefer `expect(locator).not_to_be_visible()` over `expect(locator).to_have_count(0)`. The visibility assertion has built-in auto-waiting/retry logic and produces clearer failure messages.
