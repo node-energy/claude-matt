@@ -108,10 +108,10 @@ Use this exact template structure. Replace all placeholder/italic instructional 
 - Explain what and why, not how. Do not repeat acceptance criteria.
 
 ### How to test it:
-- ALWAYS include this section (it is commented out in the original template — we always uncomment it).
 - If an opti.node URL was provided or is easily derivable: `- In opti.node: {url}`
 - If Storybook stories were found: `- [In Storybook]({storybook_url})` for each relevant story
-- If neither applies: suggest running the relevant test suite, e.g., `- Run tests: pytest path/to/tests`
+- If Python tests were added or changed in the diff: `- Run tests: pytest path/to/tests`
+- If NONE of the above apply, leave this section commented out (as it is in the original template).
 
 ### Feedback section:
 Leave blank (empty line after the heading). The developer will fill this in personally.
