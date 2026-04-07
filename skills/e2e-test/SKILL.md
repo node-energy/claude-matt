@@ -76,7 +76,7 @@ Ask: "Does this plan look correct? Any steps I should add, remove, or change?"
 Add if needed:
 - `@pytest.mark.celery` + `@pytest.mark.usefixtures("celery_session_worker")` for tests triggering Celery tasks
 - `@flaky(max_runs=3)` for timing-sensitive tests
-- `@pytest.mark.xfail(reason=XFailReason.FAILING_CELERY_TASKS)` for known-flaky Celery tests
+- `@pytest.mark.xfail(reason=XFailReason.FAILING_CELERY_TASKS)` — ONLY for the Celery teardown race condition (task outlives the test DB transaction). Never use `xfail` to paper over a test that doesn't work yet — get the test assertions passing first, then add `xfail` only if the teardown check fails
 
 ### Page object pattern
 New page objects subclass `BasePage` and go in `pages.py` or a feature-specific file:
@@ -128,6 +128,11 @@ expect(page.get_by_text("Success message")).to_be_visible()
 3. `get_by_text("Visible text")` — for non-interactive content
 4. `locator(".css-selector")` — last resort
 
+**Mantine gotchas:**
+- `IconButton` children (e.g. "Liste aktualisieren") are text, not button names — use `get_by_text()` instead of `get_by_role("button", name=...)`
+- Mantine's `FormFieldLabel` renders nested `<label>` elements, so `get_by_label()` may fail. Use `locator("input[aria-label*='...']")` for dynamically-labeled fields
+- Some UI elements are gated by `useShouldShowStaffView()` which requires `is_staff=True`. Override the `user` fixture in local conftest if your test needs staff-only UI
+
 ### Tabbed forms
 When a modal has tabs, **all tab panels exist in the DOM simultaneously**. Field selectors like `get_by_role("textbox", name="Ort")` may match fields in inactive tabs. Scope to the active tab panel:
 ```python
@@ -135,6 +140,15 @@ form = EditWizardForm.on_page(base_page=page)
 general_tab = form.form_locator.get_by_role("tabpanel")
 general_tab.get_by_role("textbox", name="Ort").fill("Berlin")
 ```
+
+### Tests involving business rules / @catch_missing_data
+When a Celery task is decorated with `@catch_missing_data`, it catches `RuleMissedData` exceptions from `@business_rule`-decorated functions. Only `@business_rule` functions trigger the None-field patching — regular Python code just sees `None` without raising.
+
+To control which fields trigger MISSING in a fixture:
+1. Search for `@business_rule` in the relevant rules directory (e.g. `regulatory_assessment/rules/`)
+2. Check whether each caller catches `RuleMissedData` (if caught → won't propagate to task level)
+3. For uncaught paths: populate those model fields with non-None values (e.g. `Option.NO` for EnumFields) to prevent them from triggering MISSING
+4. Leave only the ONE field you want to test as None
 
 ## Step 4: Verify
 
@@ -144,15 +158,16 @@ just backend-tests-endtoend path/to/test_file.py
 ```
 
 If it fails:
-1. Read the error output carefully
+1. Read the error output carefully — run with `-s --tb=short` to see server logs inline
 2. For timing issues: use `expect(...).to_be_visible(timeout=10000)` or add `page.wait_for_load_state("networkidle")`
-3. For selector issues: verify exact German text from the frontend components
+3. For selector issues: verify exact German text from the frontend components. When stuck, capture the DOM: `print(page.locator("[role='dialog']").inner_html())`
 4. For data issues: check that factories create all required related objects
 5. For empty page body (no React rendering): the frontend build likely has hardcoded `BACKEND_BASE_URL`. Rebuild with `CI=true`. To confirm, add a console listener in the fixture and look for `ERR_CONNECTION_REFUSED` errors:
    ```python
    page.on("console", lambda msg: print(f"[{msg.type}] {msg.text}"))
    ```
-6. Fix and re-run until green
+6. For Celery tests where the task runs but teardown fails: this is the known race condition where the task outlives the test DB transaction. Add `@pytest.mark.xfail(reason=XFailReason.FAILING_CELERY_TASKS)` — but only after the test assertions themselves pass
+7. Fix and re-run until green
 
 For debugging, run with a visible browser:
 ```bash
