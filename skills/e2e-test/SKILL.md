@@ -159,7 +159,7 @@ just backend-tests-endtoend path/to/test_file.py
 
 If it fails:
 1. Read the error output carefully — run with `-s --tb=short` to see server logs inline
-2. For timing issues: use `expect(...).to_be_visible(timeout=10000)` or add `page.wait_for_load_state("networkidle")`
+2. For timing issues: use `expect(...).to_be_visible(timeout=10000)` — prefer Playwright's built-in auto-waiting over manual waits. Do NOT use `page.wait_for_load_state("networkidle")` as it is unreliable and discouraged by the Playwright docs
 3. For selector issues: verify exact German text from the frontend components. When stuck, capture the DOM: `print(page.locator("[role='dialog']").inner_html())`
 4. For data issues: check that factories create all required related objects
 5. For empty page body (no React rendering): the frontend build likely has hardcoded `BACKEND_BASE_URL`. Rebuild with `CI=true`. To confirm, add a console listener in the fixture and look for `ERR_CONNECTION_REFUSED` errors:
