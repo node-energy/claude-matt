@@ -113,6 +113,14 @@ def example_page(authenticated_browser_context, some_data_fixture):
     return example_page
 ```
 
+For staff-only views, use `authenticated_browser_context_staff` instead:
+```python
+@pytest.fixture
+def example_page(authenticated_browser_context_staff, some_data_fixture):
+    page = authenticated_browser_context_staff.new_page()
+    ...
+```
+
 ### Assertions
 Use Playwright's `expect()`:
 ```python
@@ -131,7 +139,7 @@ expect(page.get_by_text("Success message")).to_be_visible()
 **Mantine gotchas:**
 - `IconButton` children (e.g. "Liste aktualisieren") are text, not button names — use `get_by_text()` instead of `get_by_role("button", name=...)`
 - Mantine's `FormFieldLabel` renders nested `<label>` elements, so `get_by_label()` may fail. Use `locator("input[aria-label*='...']")` for dynamically-labeled fields
-- Some UI elements are gated by `useShouldShowStaffView()` which requires `is_staff=True`. Override the `user` fixture in local conftest if your test needs staff-only UI
+- Some UI elements are gated by `useShouldShowStaffView()` which requires `is_staff=True`. Use `authenticated_browser_context_staff` (which injects the `staff_user` fixture) instead of `authenticated_browser_context`. You must also grant the staff user access to the project: `variant.project.managers.add(staff_user)` in your data fixture. Do NOT override the `user` fixture to create a staff user
 
 ### Tabbed forms
 When a modal has tabs, **all tab panels exist in the DOM simultaneously**. Field selectors like `get_by_role("textbox", name="Ort")` may match fields in inactive tabs. Scope to the active tab panel:
