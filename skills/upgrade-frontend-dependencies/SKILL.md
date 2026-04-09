@@ -86,10 +86,13 @@ For each package (or package group) with a major version bump:
 
 ### 3a: Research breaking changes
 
-For each package, find and read the changelog:
-- Check the package's **GitHub releases page** (e.g., `https://github.com/org/repo/releases`)
-- Check for a **CHANGELOG.md** in the package's GitHub repository
-- Focus on breaking changes between the current major version and the latest major version
+For each package, research breaking changes using the GitHub API (avoids WebFetch permission prompts):
+
+1. Get the GitHub repo: `npm view <pkg> repository.url` → extract `{owner}/{repo}` by stripping the `git+https://github.com/` prefix and `.git` suffix
+2. Fetch recent releases: `gh api repos/{owner}/{repo}/releases --jq '.[0:5] | .[] | "TAG: " + .tag_name + "\nBODY: " + .body + "\n---"'`
+3. If the releases are empty or unhelpful, try: `gh api repos/{owner}/{repo}/contents/CHANGELOG.md --jq '.content' | base64 -d | head -200`
+
+Focus on breaking changes between the current major version and the latest major version.
 
 ### 3b: Decide whether to upgrade
 
@@ -98,8 +101,10 @@ Apply this decision matrix:
 | Scenario | Action |
 |----------|--------|
 | No relevant breaking changes for how we use the package | Upgrade. Note in PR that no breaking changes affect us. |
-| Small breaking changes (few files, straightforward code fixes) | Upgrade. Apply the necessary code changes. Note what changed and why. |
-| Large/complex breaking changes (many files, architectural changes) | Skip. Record the package, reason, and changelog URL for the PR description. |
+| Small breaking changes (< 5 files, mechanical fixes like renames) | Upgrade. Apply the necessary code changes. Note what changed and why. |
+| Large breaking changes (5+ files, or non-trivial logic changes) | Skip. Record the package, reason, and changelog URL for the PR description. Flag as "recommended for separate PR". |
+
+The goal is to keep this PR low-risk and easy to review. Major upgrades requiring significant code changes are better handled in dedicated PRs where the diff is focused and rollback is straightforward.
 
 **Important**: If a package in a group can't be upgraded, skip the entire group.
 
@@ -172,11 +177,11 @@ List every package that was NOT upgraded, with reasons and links:
 ```markdown
 ### Not upgraded
 
-| Package | Current | Latest | Reason | Changelog |
-|---------|---------|--------|--------|-----------|
-| big-lib | ^2.1.0 | ^4.0.0 | Major rewrite of core API, requires significant refactor | [Releases](https://github.com/org/big-lib/releases) |
-| openapi-typescript | 7.10.1 | 7.12.0 | Pinned (enum flag broken) | [Issue](https://github.com/openapi-ts/openapi-typescript/issues/1872) |
-| xlsx | 0.20.3 | 0.20.5 | URL-based dependency, manually managed | — |
+| Package | Current | Latest | Reason | Separate PR? | Changelog |
+|---------|---------|--------|--------|:---:|-----------|
+| big-lib | ^2.1.0 | ^4.0.0 | Major rewrite of core API, requires significant refactor | Yes | [Releases](https://github.com/org/big-lib/releases) |
+| openapi-typescript | 7.10.1 | 7.12.0 | Pinned (enum flag broken) | No | [Issue](https://github.com/openapi-ts/openapi-typescript/issues/1872) |
+| xlsx | 0.20.3 | 0.20.5 | URL-based dependency, manually managed | No | — |
 ```
 
 ### Manual testing note
@@ -186,6 +191,27 @@ Add at the end of the PR body:
 ```markdown
 > **Note:** This PR requires manual testing before merging. Please verify that the application works correctly in the browser, especially features related to upgraded packages.
 ```
+
+## Recommended permissions
+
+For a low-friction experience, add these to your `settings.json` `permissions.allow` array:
+
+```json
+"Bash(npm install:*)",
+"Bash(npm run:*)",
+"Bash(npm view:*)",
+"Bash(npm info:*)",
+"Bash(gh api:*)",
+"Bash(gh pr:*)",
+"Bash(git log:*)",
+"Bash(git fetch:*)",
+"Bash(git checkout:*)",
+"Bash(git add:*)",
+"Bash(git commit:*)",
+"Bash(git push:*)"
+```
+
+Without these, you'll be prompted for each command during execution.
 
 ## Important rules
 
