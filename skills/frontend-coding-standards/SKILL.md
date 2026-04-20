@@ -81,6 +81,7 @@ Common props: `w`, `h`, `miw`, `mih`, `maw`, `mah`, `m`, `mt`, `mb`, `ml`, `mr`,
 
 - **Always add a JSDoc docstring** to exported utility functions explaining what the function does
 - **Always create an accompanying test file** (e.g. `myUtil.test.ts`) for utility functions
+- Test data factories (`createTest*` functions in test directories) are **not** considered utility functions and do not require their own test files
 
 ## Character Handling
 
