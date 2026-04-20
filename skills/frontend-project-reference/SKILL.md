@@ -1,6 +1,6 @@
 ---
 name: frontend-project-reference
-description: Frontend project conventions, development commands, directory rules, git workflows, and environment setup for the opti.node React frontend
+description: Frontend project conventions for the optinode_backend repo's React frontend — development commands, directory rules (`frontend/` vs project root), git workflows (compare against `develop`), and environment setup. Use only in this repo.
 ---
 
 # Project Reference
