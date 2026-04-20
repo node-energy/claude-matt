@@ -1,6 +1,6 @@
 ---
 name: frontend-coding-standards
-description: Coding standards for TypeScript, ESLint, Prettier, and general code quality — Array<T> syntax, JSX prop sorting, Mantine props, naming conventions, validation commands
+description: Frontend coding standards for the optinode repo — TypeScript (`Array<T>`), ESLint (JSX prop sorting), Prettier, Mantine style props, naming, and validation commands. Use whenever writing, editing, or reviewing any `.ts`/`.tsx` file in `frontend/`, before considering a file done, or when fixing lint/type errors.
 ---
 
 # Coding Standards
@@ -8,7 +8,7 @@ description: Coding standards for TypeScript, ESLint, Prettier, and general code
 ## TypeScript
 
 - Prefer explicit types over `any`
-- **Always use `Array<T>` syntax** instead of `T[]`:
+- Use `Array<T>` syntax instead of `T[]`. This is a team convention (not ESLint-enforced) that people forget easily — please apply it consistently:
 
 ```typescript
 // Correct
@@ -22,9 +22,8 @@ User[]
 
 ## ESLint
 
-- **Always follow all ESLint rules** defined in `eslint.config.mjs` — no disabling rules or ignoring warnings
-- Fix violations immediately rather than suppressing them
-- **Sort JSX props alphabetically** (callbacks last, case-insensitive):
+- Follow the ESLint rules in `eslint.config.mjs`. Don't disable rules or silence warnings — those configs exist for a reason, and suppressing them tends to hide real bugs. Fix violations rather than suppress them.
+- Sort JSX props and destructured prop parameters alphabetically (callbacks last, case-insensitive). The `react/jsx-sort-props` rule auto-fixes JSX usage sites via `eslint --fix`; destructured parameters in the component signature are not auto-sorted, so apply this manually there:
 
 ```typescript
 // Correct
@@ -46,7 +45,7 @@ User[]
 
 ## Code Formatting
 
-- **Always format code with Prettier** using the project's configuration
+- Formatting is handled automatically by the `format-frontend.sh` hook (`eslint --fix` + `prettier --write` on PostToolUse). No need to run these manually.
 
 ## Function Naming
 
@@ -75,12 +74,18 @@ function calculateTaxRate() {
 <Stack style={{ minWidth: 0, width: "80%", marginTop: "var(--mantine-spacing-md)" }} />
 ```
 
-Common props: `w`, `h`, `miw`, `mih`, `maw`, `mah`, `m`, `mt`, `mb`, `ml`, `mr`, `mx`, `my`, `p`, `pt`, `pb`, `pl`, `pr`, `px`, `py`, `bg`, `c`, `fz`, `fw`, `lh`, `ta`.
+Common props, grouped:
+
+- Sizing: `w`, `h`, `miw`, `mih`, `maw`, `mah`
+- Margin: `m`, `mt`, `mb`, `ml`, `mr`, `mx`, `my`
+- Padding: `p`, `pt`, `pb`, `pl`, `pr`, `px`, `py`
+- Typography: `fz`, `fw`, `lh`, `ta`
+- Color: `bg`, `c`
 
 ## Utility Functions
 
-- **Always add a JSDoc docstring** to exported utility functions explaining what the function does
-- **Always create an accompanying test file** (e.g. `myUtil.test.ts`) for utility functions
+- Add a JSDoc docstring to exported utility functions — they're imported across the codebase and the docstring is what shows up in IDE hovers for callers
+- Create an accompanying test file (e.g. `myUtil.test.ts`) for utility functions
 - Test data factories (`createTest*` functions in test directories) are **not** considered utility functions and do not require their own test files
 
 ## Character Handling
@@ -89,12 +94,8 @@ Common props: `w`, `h`, `miw`, `mih`, `maw`, `mah`, `m`, `mt`, `mb`, `ml`, `mr`,
 
 ## Validation Commands
 
-Run from `frontend/` directory:
+ESLint and Prettier run automatically via the `format-frontend.sh` PostToolUse hook. Type checking is not hooked, so run it yourself from `frontend/`:
 
 ```bash
-npx prettier --check path/to/changed/file.tsx
-npx eslint path/to/changed/file.tsx
-npx tsc --noEmit  # Always run — type changes have cascading effects
+npx tsc --noEmit  # type changes have cascading effects across the codebase
 ```
-
-When changing shared types or utilities, run `npx tsc --noEmit` and `npx eslint .`.
